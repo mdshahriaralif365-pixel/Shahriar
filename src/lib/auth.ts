@@ -44,7 +44,12 @@ export const authOptions: NextAuthOptions = {
         if (!user) return null;
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isPasswordValid) return null;
+        if (!isPasswordValid) {
+          console.log("Login failed: Invalid password for", credentials.email);
+          return null;
+        }
+
+        console.log("Login successful for", credentials.email);
 
         return { 
           id: user.id, 
@@ -58,9 +63,16 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        console.log("JWT callback: user authenticated", user.email);
+      }
+      return token;
+    },
     async session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
       }
       return session;
     }

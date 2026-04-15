@@ -18,16 +18,20 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
     
-    const res = await signIn("credentials", {
-      email, password, redirect: false
-    })
-    
-    if (res?.error) {
-      setError("Invalid Email or Password")
+    try {
+      const res = await signIn("credentials", {
+        email, password, redirect: false
+      })
+      
+      if (res?.error) {
+        setError("Invalid Email or Password")
+        setIsLoading(false)
+      } else {
+        window.location.href = "/admin"
+      }
+    } catch (err: any) {
+      setError("An unexpected error occurred. Please try again.")
       setIsLoading(false)
-    } else {
-      router.push("/admin")
-      router.refresh()
     }
   }
 
