@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "postinstall": "prisma generate",
-    "dev": "npm install && next dev --turbopack",
-    "build": "next build --turbopack",
+    "db:push": "prisma db push",
+    "build": "prisma generate && prisma db push --accept-data-loss && next build --turbopack",
     "start": "next start",
     "lint": "eslint"
   },
