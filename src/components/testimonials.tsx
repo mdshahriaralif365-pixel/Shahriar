@@ -1,70 +1,119 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Quote } from "lucide-react"
+import { Quote, User } from "lucide-react"
+import { SectionHeading } from "./about"
+import Image from "next/image"
 
 const MOCK_TESTIMONIALS = [
   {
     id: "1",
     name: "John Doe",
-    position: "CEO at TechFlow",
-    text: "Shahriar is an incredibly talented developer. His attention to detail and ability to turn complex logic into clean, user-friendly UI is unmatched.",
+    role: "CEO, Tech Corp",
+    content: "Shahriar is an exceptional developer. He delivered our project on time and the quality of work was beyond our expectations.",
+    avatar: null,
   },
   {
     id: "2",
-    name: "Sarah Jenkins",
-    position: "Product Manager",
-    text: "Working with Alif was a breeze. He consistently delivered high-quality code and always met deadlines. Highly recommended for any web projects!",
+    name: "Jane Smith",
+    role: "Product Manager, Design Studio",
+    content: "Working with Shahriar was a breeze. He has a great eye for detail and perfectly understood our requirements.",
+    avatar: null,
   },
   {
     id: "3",
-    name: "David Smith",
-    position: "Senior Designer",
-    text: "As a designer, I'm very picky about how my designs are implemented. Shahriar nailed every single detail flawlessly with amazing animations.",
+    name: "Alex Johnson",
+    role: "Full-Stack Developer",
+    content: "One of the best developers I've collaborated with. His technical skills and problem-solving abilities are top-notch.",
+    avatar: null,
   }
 ]
 
-export function Testimonials() {
-  return (
-    <section id="testimonials" className="py-24 relative bg-secondary/10 overflow-hidden">
-      <div className="container px-4 md:px-6 mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground mb-4">What People Say</h2>
-          <div className="w-20 h-1.5 bg-primary mx-auto rounded-full" />
-        </motion.div>
+interface TestimonialData {
+  id: string
+  name: string
+  role: string
+  content: string
+  avatar: string | null
+}
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {MOCK_TESTIMONIALS.map((testimonial, idx) => (
-            <motion.div
-              key={testimonial.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.15 }}
-              className="bg-background p-8 rounded-3xl border border-border/50 shadow-sm relative group hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(var(--primary),0.08)] transition-all duration-300"
-            >
-              <Quote className="absolute top-6 right-8 h-12 w-12 text-primary/10 group-hover:text-primary/20 transition-colors" />
-              <div className="mb-8 relative z-10">
-                <p className="text-muted-foreground leading-relaxed italic">
-                  &quot;{testimonial.text}&quot;
+const testimonialColors = [
+  "oklch(0.55 0.24 295)",
+  "oklch(0.65 0.2 180)",
+  "oklch(0.7 0.2 340)",
+]
+
+export function Testimonials({ data }: { data?: TestimonialData[] }) {
+  const testimonials = data && data.length > 0 ? data : MOCK_TESTIMONIALS
+
+  return (
+    <section id="testimonials" className="py-28 relative overflow-hidden">
+      {/* Background decoration */}
+      <div 
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{
+          background: "radial-gradient(circle at 80% 20%, oklch(0.7 0.2 340 / 0.05), transparent)",
+        }}
+      />
+
+      <div className="container px-4 md:px-6 mx-auto">
+        <SectionHeading 
+          label="Testimonials" 
+          title="What Clients Say" 
+          subtitle="I take pride in building strong relationships with my clients and delivering exceptional results."
+        />
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, idx) => {
+            const color = testimonialColors[idx % testimonialColors.length]
+            return (
+              <motion.div
+                key={testimonial.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className="relative p-8 rounded-[2.5rem] border group card-hover flex flex-col"
+                style={{
+                  background: "var(--card)",
+                  borderColor: "var(--border)",
+                  boxShadow: "0 10px 40px -10px oklch(0 0 0 / 0.05)",
+                }}
+                whileHover={{ borderColor: color + "40" }}
+              >
+                {/* Quote Icon */}
+                <div 
+                  className="absolute -top-4 right-2 sm:-right-2 md:-right-4 w-12 h-12 rounded-2xl flex items-center justify-center text-white rotate-12 group-hover:rotate-0 transition-transform duration-500 shadow-lg"
+                  style={{ background: color, boxShadow: `0 8px 20px ${color}40` }}
+                >
+                  <Quote className="w-6 h-6 fill-current" />
+                </div>
+
+                {/* Content */}
+                <p className="text-muted-foreground italic mb-8 leading-relaxed flex-grow">
+                  &ldquo;{testimonial.content}&rdquo;
                 </p>
-              </div>
-              <div className="mt-auto flex items-center gap-4 relative z-10 border-t border-border/50 pt-6">
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-lg text-primary border border-primary/20">
-                  {testimonial.name.charAt(0)}
+
+                {/* Profile */}
+                <div className="flex items-center gap-4">
+                  <div 
+                    className="w-12 h-12 rounded-2xl overflow-hidden flex items-center justify-center border"
+                    style={{ background: color + "15", borderColor: color + "30" }}
+                  >
+                    {testimonial.avatar ? (
+                      <Image src={testimonial.avatar} alt={testimonial.name} width={48} height={48} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-6 h-6" style={{ color }} />
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-foreground">{testimonial.name}</h4>
+                    <p className="text-xs font-semibold uppercase tracking-wider" style={{ color }}>{testimonial.role}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-foreground">{testimonial.name}</h4>
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{testimonial.position}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            )
+          })}
         </div>
       </div>
     </section>

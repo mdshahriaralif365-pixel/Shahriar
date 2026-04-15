@@ -12,7 +12,9 @@ export default withAuth(
         // Allow login and setup pages without auth
         if (
           pathname.startsWith("/admin/login") ||
-          pathname.startsWith("/admin/setup")
+          pathname.startsWith("/admin/setup") ||
+          pathname.startsWith("/admin/forgot-password") ||
+          pathname.startsWith("/admin/reset-password")
         ) {
           return true
         }

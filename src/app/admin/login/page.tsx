@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Lock } from "lucide-react"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("admin@example.com")
@@ -61,6 +62,11 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)} 
               className="w-full h-12 bg-secondary/30 mt-2 border border-border/50 rounded-xl px-4 text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
             />
+            <div className="flex justify-end mt-2">
+              <Link href="/admin/forgot-password" title="Click here to reset your password" id="forgot-password-link" className="text-sm text-primary hover:underline transition-all">
+                Forgot Password?
+              </Link>
+            </div>
           </div>
           <Button type="submit" disabled={isLoading} className="w-full h-12 text-lg rounded-xl mt-4">
             {isLoading ? "Signing in..." : "Sign In to Dashboard"}

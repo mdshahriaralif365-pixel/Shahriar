@@ -1,7 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Briefcase } from "lucide-react"
+import { Briefcase, Calendar } from "lucide-react"
+import { SectionHeading } from "./about"
 
 const MOCK_EXPERIENCE = [
   {
@@ -19,54 +20,99 @@ const MOCK_EXPERIENCE = [
     startDate: "Mar 2019",
     endDate: "Dec 2021",
     description: "Developed and maintained full-stack web applications using Next.js and Node.js. Collaborated with UI/UX designers to bring mockups to life.",
-  }
+  },
 ]
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function Experience({ data }: { data?: any[] }) {
-  const experiences = data && data.length > 0 ? data : MOCK_EXPERIENCE;
+interface ExperienceData {
+  id: string; company: string; role: string
+  startDate: string; endDate: string | null; description: string
+}
+
+const expColors = ["oklch(0.55 0.24 295)", "oklch(0.65 0.2 180)", "oklch(0.7 0.2 340)"]
+
+export function Experience({ data }: { data?: ExperienceData[] }) {
+  const experiences = data && data.length > 0 ? data : MOCK_EXPERIENCE
 
   return (
-    <section id="experience" className="py-24 relative bg-secondary/10">
-      <div className="container px-4 md:px-6 mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground mb-4">Work Experience</h2>
-          <div className="w-20 h-1.5 bg-primary mx-auto rounded-full" />
-        </motion.div>
+    <section id="experience" className="py-28 relative overflow-hidden">
+      {/* Radial bg */}
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse 60% 60% at 80% 50%, oklch(0.65 0.2 180 / 0.06), transparent)",
+        }}
+      />
 
-        <div className="max-w-3xl mx-auto space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-1 before:bg-gradient-to-b before:from-primary/5 before:via-primary/20 before:to-primary/5 rounded-full">
-          {experiences.map((exp, idx) => (
-            <motion.div
-              key={exp.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.2 }}
-              className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group"
-            >
-              <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-primary text-primary-foreground absolute left-0 md:left-1/2 -translate-x-1/2 shadow-[0_0_15px_rgba(var(--primary),0.5)] z-10">
-                <Briefcase className="w-4 h-4 shadow-sm" />
-              </div>
-              
-              <div className="w-[calc(100%-3.5rem)] md:w-[calc(50%-3rem)] p-6 rounded-3xl bg-background border border-border/50 shadow-sm hover:shadow-[0_0_25px_rgba(var(--primary),0.08)] hover:border-primary/30 transition-all ml-auto md:ml-0 md:group-odd:ml-auto">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                  <h3 className="font-bold text-xl text-foreground">{exp.role}</h3>
-                  <span className="px-3 py-1 bg-secondary text-secondary-foreground text-xs font-semibold rounded-full w-fit">
-                    {exp.startDate} - {exp.endDate}
-                  </span>
-                </div>
-                <h4 className="text-primary font-semibold mb-4 text-sm uppercase tracking-wider">{exp.company}</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {exp.description}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+      <div className="container px-4 md:px-6 mx-auto">
+        <SectionHeading label="Career Journey" title="Work Experience" />
+
+        <div className="max-w-4xl mx-auto relative">
+          {/* Timeline axis */}
+          <div
+            className="absolute left-6 top-0 bottom-0 w-px md:left-1/2 md:-translate-x-1/2"
+            style={{ background: "linear-gradient(to bottom, transparent, oklch(0.55 0.24 295 / 0.4) 20%, oklch(0.65 0.2 180 / 0.4) 80%, transparent)" }}
+          />
+
+          <div className="space-y-10">
+            {experiences.map((exp, idx) => {
+              const color = expColors[idx % expColors.length]
+              const isEven = idx % 2 === 0
+
+              return (
+                <motion.div
+                  key={exp.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.65, delay: idx * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="relative flex items-start md:items-center justify-start md:justify-normal"
+                >
+                  {/* Center icon */}
+                  <motion.div
+                    className="absolute left-6 md:left-1/2 -translate-x-1/2 z-10 w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-xl"
+                    style={{ background: color, boxShadow: `0 0 20px ${color}60` }}
+                    whileHover={{ scale: 1.15, rotate: 10 }}
+                    transition={{ type: "spring", stiffness: 400 }}
+                  >
+                    <Briefcase className="w-5 h-5" />
+                  </motion.div>
+
+                  {/* Card — alternating sides on desktop */}
+                  <div className={`w-full pl-16 md:pl-0 md:w-[45%] ${isEven ? "md:mr-auto md:pr-12" : "md:ml-auto md:pl-12"}`}>
+                    <motion.div
+                      className="p-6 rounded-3xl border transition-all group card-hover"
+                      style={{ background: "var(--card)", borderColor: "var(--border)" }}
+                      whileHover={{ borderColor: color + "50" }}
+                    >
+                      {/* Date badge */}
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <Calendar className="w-3.5 h-3.5" style={{ color }} />
+                        <span
+                          className="text-xs font-bold rounded-full px-3 py-0.5"
+                          style={{ background: color + "15", color, border: `1px solid ${color}30` }}
+                        >
+                          {exp.startDate} — {exp.endDate || "Present"}
+                        </span>
+                      </div>
+
+                      <h3 className="font-extrabold text-xl text-foreground mb-1 group-hover:text-primary transition-colors">
+                        {exp.role}
+                      </h3>
+                      <h4
+                        className="font-bold text-sm uppercase tracking-wider mb-4"
+                        style={{ color }}
+                      >
+                        {exp.company}
+                      </h4>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {exp.description}
+                      </p>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
         </div>
       </div>
     </section>

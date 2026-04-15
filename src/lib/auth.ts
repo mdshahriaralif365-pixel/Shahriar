@@ -1,7 +1,15 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+    } & DefaultSession["user"];
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,23 +22,25 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        // অটোমেটিক ডাটাবেস আপডেট এবং বাইপাস:
-        if (credentials.email === "admin@example.com" && credentials.password === "admin123") {
+        // Check if any user exists, if not create default admin
+        const userCount = await prisma.user.count();
+        if (userCount === 0) {
           const hashedPassword = await bcrypt.hash("admin123", 10);
-          const adminUser = await prisma.user.upsert({
-            where: { email: "admin@example.com" },
-            update: { password: hashedPassword },
-            create: { name: "Admin", email: "admin@example.com", password: hashedPassword },
+          await prisma.user.create({
+            data: {
+              name: "Admin",
+              email: "admin@example.com",
+              password: hashedPassword,
+            },
           });
-          return { id: adminUser.id, name: adminUser.name, email: adminUser.email };
         }
 
-        // ডাটাবেস থেকে ইউজার খোঁজা হচ্ছে
+        // Find user from database
         const user = await prisma.user.findUnique({
           where: { email: credentials.email }
         });
 
-        // ইউজার না থাকলে বা পাসওয়ার্ড ভুল হলে লগইন ফেইল
+        // If user not found or password doesn't match
         if (!user) return null;
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
@@ -49,9 +59,8 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async session({ session, token }) {
-      if (session.user) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (session.user as any).id = token.sub;
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
       }
       return session;
     }

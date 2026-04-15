@@ -1,0 +1,13 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, Plus, Trash2, GraduationCap } from "lucide-react"
+import Link from "next/link"
+import { deleteEducation, addEducation } from "./actions"
+import { prisma } from "@/lib/prisma" // Wait, I can't use prisma in client component. 
+// I need a getEducation function in actions.
+
+export default function EducationAdmin() {
+  // ...
+}

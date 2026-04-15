@@ -2,10 +2,12 @@
 
 import { motion } from "framer-motion"
 import { ExternalLink, FolderKanban } from "lucide-react"
+import { GithubIcon } from "@/components/icons"
 import Link from "next/link"
 import { Button } from "./ui/button"
+import { SectionHeading } from "./about"
+import Image from "next/image"
 
-// এই ডেটাগুলো পরে ডাটাবেস থেকে ডাইনামিকভাবে আসবে (ধাপ ৯-এ)
 const MOCK_PROJECTS = [
   {
     id: "1",
@@ -33,84 +35,163 @@ const MOCK_PROJECTS = [
     techStack: ["Next.js", "OpenAI API", "Tailwind CSS", "Zustand"],
     liveDemo: "https://example.com",
     github: "https://github.com",
-  }
+  },
 ]
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function Projects({ data }: { data?: any[] }) {
-  const projects = data && data.length > 0 ? data : MOCK_PROJECTS;
+interface ProjectData {
+  id: string; title: string; description: string; image: string
+  techStack: string[]; liveDemo: string | null; github: string | null
+}
+
+const cardColors = [
+  "oklch(0.55 0.24 295)",
+  "oklch(0.65 0.2 180)",
+  "oklch(0.7 0.2 340)",
+]
+
+export function Projects({ data }: { data?: ProjectData[] }) {
+  const projects = data && data.length > 0 ? data : MOCK_PROJECTS
+  const displayProjects = projects.map((p, i) => ({
+    ...p,
+    accentColor: cardColors[i % cardColors.length],
+    techStack: typeof p.techStack === "string"
+      ? (p.techStack as string).split(",").map((t: string) => t.trim())
+      : p.techStack,
+  }))
 
   return (
-    <section id="projects" className="py-24 relative">
-      <div className="container px-4 md:px-6 mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground mb-4">Featured Projects</h2>
-          <div className="w-20 h-1.5 bg-primary mx-auto rounded-full" />
-          <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-            Some of my recent works. Each project is built from scratch with a focus on great user experience and scalable architecture.
-          </p>
-        </motion.div>
+    <section id="projects" className="py-28 relative overflow-hidden">
+      {/* Bg accent */}
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse 80% 50% at 20% 50%, oklch(0.55 0.24 295 / 0.05), transparent)",
+        }}
+      />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, idx) => (
-            <motion.div
+      <div className="container px-4 md:px-6 mx-auto">
+        <SectionHeading
+          label="My Work"
+          title="Featured Projects"
+          subtitle="Each project is crafted from scratch with attention to detail, performance, and user experience."
+        />
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
+          {displayProjects.map((project, idx) => (
+            <motion.article
               key={project.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: idx * 0.2 }}
-              className="group flex flex-col bg-background rounded-3xl border border-border/50 overflow-hidden hover:shadow-[0_0_30px_rgba(var(--primary),0.15)] hover:border-primary/50 transition-all duration-500"
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: idx * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="group flex flex-col rounded-3xl overflow-hidden border transition-all duration-500 card-hover"
+              style={{
+                background: "var(--card)",
+                borderColor: "var(--border)",
+              }}
+              whileHover={{ borderColor: project.accentColor + "50" }}
             >
-              {/* Project Image Placeholder */}
-              <div className={`relative h-56 w-full ${project.image} flex items-center justify-center overflow-hidden`}>
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent z-10" />
-                <FolderKanban className="h-20 w-20 text-foreground/30 group-hover:scale-110 transition-transform duration-500 relative z-0" />
-                
-                {/* Overlay Links on Hover */}
-                <div className="absolute inset-0 bg-background/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex items-center justify-center gap-4">
+              {/* Image */}
+              <div className="relative h-52 w-full overflow-hidden flex items-center justify-center">
+                {project.image && (
+                  project.image.startsWith("data:image") ||
+                  project.image.startsWith("http") ||
+                  project.image.startsWith("/")
+                ) ? (
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                ) : (
+                  <div
+                    className="absolute inset-0 w-full h-full flex items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${project.accentColor}20, ${project.accentColor}08)` }}
+                  >
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+                      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <FolderKanban className="h-16 w-16 opacity-30" style={{ color: project.accentColor }} />
+                    </motion.div>
+                  </div>
+                )}
+
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--card)] via-transparent to-transparent z-10" />
+
+                {/* Hover overlay with buttons */}
+                <motion.div
+                  className="absolute inset-0 z-20 flex items-center justify-center gap-3"
+                  style={{ backdropFilter: "blur(4px)", background: "oklch(0 0 0 / 50%)" }}
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  transition={{ duration: 0.25 }}
+                >
                   {project.liveDemo && (
-                    <Button asChild size="sm" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                      <Link href={project.liveDemo} target="_blank">
-                        <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
-                      </Link>
-                    </Button>
+                    <motion.div initial={{ y: 10, opacity: 0 }} whileHover={{ y: 0, opacity: 1 }} transition={{ delay: 0.05 }}>
+                      <Button
+                        asChild
+                        size="sm"
+                        className="rounded-xl font-bold shadow-xl"
+                        style={{ background: project.accentColor, color: "#fff" }}
+                      >
+                        <Link href={project.liveDemo} target="_blank">
+                          <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Live Demo
+                        </Link>
+                      </Button>
+                    </motion.div>
                   )}
                   {project.github && (
-                    <Button asChild size="sm" variant="secondary" className="rounded-full">
-                      <Link href={project.github} target="_blank">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg> GitHub
-                      </Link>
-                    </Button>
+                    <motion.div initial={{ y: 10, opacity: 0 }} whileHover={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                      <Button asChild size="sm" variant="secondary" className="rounded-xl font-bold">
+                        <Link href={project.github} target="_blank">
+                          <GithubIcon className="mr-1.5 h-3.5 w-3.5" /> Code
+                        </Link>
+                      </Button>
+                    </motion.div>
                   )}
+                </motion.div>
+
+                {/* Number badge */}
+                <div
+                  className="absolute top-4 left-4 z-30 w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black text-white"
+                  style={{ background: project.accentColor }}
+                >
+                  {String(idx + 1).padStart(2, "0")}
                 </div>
               </div>
 
+              {/* Content */}
               <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                <h3
+                  className="text-xl font-bold text-foreground mb-2 transition-colors duration-300 group-hover:text-primary"
+                >
                   {project.title}
                 </h3>
-                <p className="text-muted-foreground text-sm mb-6 flex-grow leading-relaxed">
+                <p className="text-muted-foreground text-sm mb-5 flex-grow leading-relaxed line-clamp-3">
                   {project.description}
                 </p>
-                
+
+                {/* Tech tags */}
                 <div className="flex flex-wrap gap-2 mt-auto">
-                  {project.techStack.map((tech) => (
-                    <span 
-                      key={tech} 
-                      className="px-3 py-1 bg-secondary/50 text-secondary-foreground text-xs font-medium rounded-full border border-border/50"
+                  {(Array.isArray(project.techStack) ? project.techStack : []).map((tech: string) => (
+                    <span
+                      key={tech}
+                      className="px-2.5 py-1 text-[11px] font-semibold rounded-lg"
+                      style={{
+                        background: project.accentColor + "15",
+                        color: project.accentColor,
+                        border: `1px solid ${project.accentColor}30`,
+                      }}
                     >
                       {tech}
                     </span>
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </motion.article>
           ))}
         </div>
       </div>

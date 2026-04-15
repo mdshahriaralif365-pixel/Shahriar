@@ -1,5 +1,6 @@
 "use server"
 
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const contactSchema = z.object({
@@ -11,13 +12,19 @@ const contactSchema = z.object({
 export async function submitContact(formData: z.infer<typeof contactSchema>) {
   try {
     const validatedData = contactSchema.parse(formData);
-    // এই জায়গায় বাস্তবে Resend, Sendgrid বা Nodemailer ইমেইল সার্ভিস ব্যবহার করা হবে।
-    // আপাতত আমরা ১.৫ সেকেন্ডের ডামি লোডিং দেখাচ্ছি।
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Contact form submitted:", validatedData);
+    
+    // Save message to database
+    await prisma.message.create({
+      data: {
+        name: validatedData.name,
+        email: validatedData.email,
+        message: validatedData.message,
+      }
+    });
     
     return { success: true, message: "Thank you! Your message sent successfully!" };
-  } catch {
+  } catch (error) {
+    console.error("Contact submission error:", error);
     return { success: false, message: "Validation failed or server error." };
   }
 }

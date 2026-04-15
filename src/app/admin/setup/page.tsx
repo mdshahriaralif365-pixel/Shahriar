@@ -38,15 +38,15 @@ export default async function SetupAdmin() {
         <form action={createAdmin} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Full Name</label>
-            <input name="name" required className="w-full px-4 py-2 rounded-xl border border-border bg-secondary/20" placeholder="Shahriar Alif" />
+            <input name="name" required className="w-full px-4 py-2 rounded-xl border border-border bg-secondary/20" placeholder="Write your full name here" />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Email Address</label>
-            <input name="email" type="email" required className="w-full px-4 py-2 rounded-xl border border-border bg-secondary/20" placeholder="admin@example.com" />
+            <input name="email" type="email" required className="w-full px-4 py-2 rounded-xl border border-border bg-secondary/20" placeholder="Write your admin email here" />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Password</label>
-            <input name="password" type="password" required className="w-full px-4 py-2 rounded-xl border border-border bg-secondary/20" placeholder="••••••••" />
+            <input name="password" type="password" required className="w-full px-4 py-2 rounded-xl border border-border bg-secondary/20" placeholder="Write a strong password here" />
           </div>
           <button type="submit" className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/20">
             Create Admin Account
