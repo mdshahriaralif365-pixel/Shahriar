@@ -11,4 +11,4 @@
 [build.environment]
   NODE_VERSION = "20"
   NEXT_USE_NETLIFY_EDGE = "false"
-  DATABASE_URL = "file:./prisma/dev.db"
+  DATABASE_URL = "file:./dev.db"
