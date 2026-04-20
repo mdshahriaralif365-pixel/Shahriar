@@ -1,0 +1,178 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  password         String
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  securityAnswers  UserSecurityAnswer[]
+}
+
+model SecurityQuestion {
+  id        String               @id @default(cuid())
+  question  String               @unique
+  answers   UserSecurityAnswer[]
+}
+
+model UserSecurityAnswer {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   SecurityQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answer     String
+
+  @@unique([userId, questionId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  image       String
+  techStack   String
+  liveDemo    String?
+  github      String?
+  createdAt   DateTime @default(now())
+}
+
+model Experience {
+  id          String   @id @default(cuid())
+  company     String
+  role        String
+  startDate   String
+  endDate     String?
+  description String
+  order       Int      @default(0)
+}
+
+model Education {
+  id          String   @id @default(cuid())
+  degree      String
+  institution String
+  startDate   String
+  endDate     String?
+  description String?
+}
+
+model Skill {
+  id          String   @id @default(cuid())
+  name        String
+  category    String?
+  icon        String?
+  level       Int?
+}
+
+model ContactInfo {
+  id       String @id @default("1")
+  email    String
+  phone    String
+  location String
+}
+
+model About {
+  id          String @id @default("1")
+  bio         String
+  card1Title  String @default("Frontend Development")
+  card1Desc   String @default("Building responsive and interactive user interfaces using React and Next.js.")
+  card2Title  String @default("Backend Development")
+  card2Desc   String @default("Developing robust APIs and database structures with Node.js and Prisma.")
+  card3Title  String @default("Performance Optimization")
+  card3Desc   String @default("Ensuring lightning-fast load times and smooth animations for a premium feel.")
+}
+
+model SocialLinks {
+  id        String @id @default("1")
+  github    String @default("https://github.com/shahriar-alif")
+  linkedin  String @default("https://linkedin.com/in/shahriar-alif")
+  twitter   String?
+  facebook  String?
+  instagram String?
+}
+
+model Testimonial {
+  id       String @id @default(cuid())
+  name     String
+  position String
+  text     String
+  link     String?
+}
+
+model SectionVisibility {
+  id          String  @id @default("1")
+  showAbout   Boolean @default(true)
+  showProject Boolean @default(true)
+  showExp     Boolean @default(true)
+  showEdu     Boolean @default(true)
+  showSkill   Boolean @default(true)
+  showTesti   Boolean @default(true)
+  showContact Boolean @default(true)
+}
+
+model Hero {
+  id            String @id @default("1")
+  welcomeText   String @default("Welcome to my portfolio")
+  name          String @default("Shahriar Alif")
+  role          String @default("Senior Full-Stack Web Developer & UI/UX Designer")
+  description   String @default("I specialize in building exceptional, dynamic, and high-performance web applications.")
+  avatarText    String @default("SA.")
+  avatarSubtext String @default("Developer")
+  avatarImage   String?
+  badge1        String @default("React")
+  badge2        String @default("Next.js")
+  badge3        String @default("Node.js")
+  showBadges    Boolean @default(true)
+}
+
+model NavbarSettings {
+  id        String    @id @default("1")
+  logoText  String    @default("ALIF.")
+  logoImage String?
+  ctaText   String?   @default("Hire Me")
+  ctaLink   String?   @default("#contact")
+  showCTA   Boolean   @default(false)
+  navLinks  NavLink[]
+}
+
+model NavLink {
+  id               String         @id @default(cuid())
+  name             String
+  href             String
+  order            Int            @default(0)
+  isActive         Boolean        @default(true)
+  navbarSettingsId String
+  navbarSettings   NavbarSettings @relation(fields: [navbarSettingsId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model FooterSettings {
+  id            String @id @default("1")
+  copyrightText String @default("All rights reserved © {year}.")
+  builtWithText String @default("Built with ❤️ by")
+  creditName    String @default("Shahriar Alif")
+  creditLink    String @default("/")
+}
+model SiteSettings {
+  id        String  @id @default("1")
+  siteName  String  @default("Shahriar Alif")
+  siteRole  String  @default("Full-Stack Web Developer")
+  favicon   String?
+}
